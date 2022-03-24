@@ -1,0 +1,155 @@
+﻿@model CoreDemo.Areas.Admin.Models.WriterClass
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>Yazar Ajax İşlemleri</h1>
+<br />
+<button class="btn btn-outline-primary" id="btngetlist" type="button">Yazar Listesi</button>
+<button class="btn btn-outline-success" id="btngetbyid" type="button">Yazar Getir</button>
+<button class="btn btn-outline-info" id="btnaddwriter" type="button">Yazar Ekle</button>
+<button class="btn btn-outline-danger" id="btndeletewriter" type="button">Yazar Sil</button>
+<button class="btn btn-outline-warning" id="btnupdatewriter" type="button">Yazar Güncelle</button>
+<br />
+<br />
+<div id="writerlist">Buraya Yazarlar gelecek</div>
+<br />
+<div id="writerget">Buraya 1 Yazar gelecek</div>
+<br />
+<div>
+    <input type="text" id="writerid" placeholder="Yazar ID değerini giriniz " class="form-control" />
+</div>
+<br />
+<br />
+<div id="addwriterpanel">
+    @Html.HiddenFor(x => x.Id, new { @class = "form-control" })
+    @Html.Label("Yazar Adı")
+    @Html.TextBoxFor(x => x.Name, new { @class = "form-control" })
+    @Html.Label("Yazar Hakkında")
+    @Html.TextBoxFor(x => x.About, new { @class = "form-control" })
+    @Html.Label("Yazar Resmi")
+    @Html.TextBoxFor(x => x.Image, new { @class = "form-control" })
+    @Html.Label("Yazar Mail")
+    @Html.TextBoxFor(x => x.Mail, new { @class = "form-control" })
+    @Html.Label("Yazar Şifresi")
+    @Html.TextBoxFor(x => x.Password, new { @class = "form-control" })
+
+    @*<input type="text" class="form-control" id="txtwriterid" placeholder="Yazar ID" />
+        <input type="text" class="form-control" id="txtwritername" placeholder="Yazar Adı" />
+        <input type="text" class="form-control" id="txtwriterabout" placeholder="Yazar Hakkında" />
+        <input type="text" class="form-control" id="txtwriterimage" placeholder="Yazar Resim" />
+        <input type="email" class="form-control" id="txtwritermail" placeholder="Yazar Mail" />
+        <input type="text" class="form-control" id="txtwriterpassword" placeholder="Yazar Şifre" />*@
+
+</div>
+<br />
+<br />
+<div>
+    @*@Html.TextBoxFor(x=>x.Id, new { @class = "form-control" })*@
+    <input type="text" class="form-control" id="txtid" placeholder="Silmek İstediğiniz Yazar ID değerini girin" />
+</div>
+<br /><br />
+<input type="text" class="form-control" id="txtupdateid" placeholder="Güncellenecek ID" />
+<input type="text" class="form-control" id="txtupdatename" placeholder="Güncellenecek İsim" />
+<input type="text" class="form-control" id="txtupdatemail" placeholder="Güncellenecek Mail" />
+<input type="text" class="form-control" id="txtupdatepassword" placeholder="Güncellenecek Şifre" />
+
+@*//<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>*@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@section scripts{
+    @*//  *@
+    <script>
+        $("#btngetlist").click(function () {
+            $.ajax({
+                contentType: "application/json",
+                dataType: "json",
+                type: "Get",
+                url: "/Admin/Writer/WriterList/",
+                success: function (func) {
+                    let w = jQuery.parseJSON(func);
+                    console.log(w);
+                    let tablehtml = "<table class=table table-bordered> <tr><th>Yazar ID</th><th>Yazar Adı</th><th>Yazar Mail</th><th>Yazar Şifre</th></tr>";
+                    $.each(w, (index, value) => {
+                        tablehtml += `<tr><td>${value.Id}</td><td>${value.Name}</td><td>${value.Mail}</td><td>${value.Password}</td></tr>`
+                    });
+                    tablehtml += "</table>";
+                    $("#writerlist").html(tablehtml);
+                }
+            });
+            $("#writerlist").toggle(1000);
+        });
+
+        $("#btngetbyid").click(x => {
+            let id = $("#writerid").val();
+            $.ajax({
+                contentType: "application/json",
+                dataType: "json",
+                type: "Get",
+                url: "/Admin/Writer/GetByWriterId/",
+                data: { writerid: id },
+                success: function (func) {
+                    let w = jQuery.parseJSON(func);
+                    console.log(w);
+
+                    let getvalue =
+                        `<table class=table table-bordered><tr><th>Yazar ID</th><th>Yazar Adı</th><th>Yazar Mail</th><th>Yazar Şifre</th></tr><tr><td>${w.Id}</td><td>${w.Name}</td><td>${w.Mail}</td><td>${w.Password}</td></tr></table>`
+                    $("#writerget").html(getvalue);
+                }
+            });
+            $("#writerget").toggle(1000);
+        });
+
+        $("#btnaddwriter").click(function () {
+            let writer = {
+                Id: $("#Name").val(),
+                Name: $("#About").val(),
+                About: $("#Image").val(),
+                Mail: $("#Mail").val(),
+                Password: $("#Password").val(),
+            };
+
+            $.ajax({
+                type: "post",
+                url: "/Admin/Writer/AddWriter/",
+                data: writer,
+                success: function (func) {
+                    let result = jQuery.parseJSON(func);
+                    alert("Yazar ekleme işlemi başarılı bir şekilde gerçekleşti");
+                }
+            });
+        });
+
+        $("#btndeletewriter").click(function () {
+                    let id = $("#txtid").val();
+
+            $.ajax({
+                url: "/Admin/Writer/DeleteWriter/" + id,
+                type: "post",
+                dataType: "json",
+                success: function (func) {
+                    alert("Yazar Silme İşlemi Başarılı Bir Şekilde Gerçekleşti");
+                }
+            });
+        });
+
+                $("#btnupdatewriter").click(function () {
+                    let writer = {
+                        Id: $("#txtupdateid").val(),
+                        Name: $("#txtupdatename").val(),
+                        Mail: $("#txtupdatemail").val(),
+                        Password: $("#txtupdatepassword").val()
+                    };
+
+                    $.ajax({
+                        type: "post",
+                        url: "/Admin/Writer/UpdateWriter/",
+                        data: writer,
+                        success: function (func) {
+                            alert("Güncelleme İşlemi Başarılı Bir Şekilde Gerçekleşti");
+                        }
+                    });
+                });
+    </script>
+}

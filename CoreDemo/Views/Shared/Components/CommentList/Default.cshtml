@@ -1,0 +1,8 @@
+﻿@model IEnumerable<CoreDemo.Models.UserComment>
+<h1>Selam burası view Component</h1>
+
+@foreach (var item in Model)
+{
+    <p>@item.Id</p>
+    <p>@item.UserName</p>
+}
